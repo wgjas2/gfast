@@ -14,7 +14,7 @@ import (
 )
 
 //添加文章操作
-func AddNews(req *cms_news.ReqAddParams, cateIds []int, userId int) (insId int64, err error) {
+func AddNews(req *cms_news.ReqAddParams, cateIds []int, userId uint64) (insId int64, err error) {
 	cateIds, err = getPubCateIds(cateIds)
 	if err != nil {
 		return
@@ -102,7 +102,7 @@ func getPubCateIds(cateIds []int) ([]int, error) {
 }
 
 //文章列表查询
-func NewsListByPage(req *cms_news.ReqListSearchParams) (total, page int, list gdb.Result, err error) {
+func NewsListByPage(req *cms_news.ReqListSearchParams) (total, page int, list []*cms_news.NewsList, err error) {
 	var menuList []*cms_category.Entity
 	//获取所有栏目
 	menuList, err = GetMenuList()
@@ -131,7 +131,7 @@ func NewsListByPage(req *cms_news.ReqListSearchParams) (total, page int, list gd
 	//匹配文章所属栏目
 	var cateIds []int
 	for _, v := range list {
-		cateIds, err = GetCheckedCategoryIdByNewsId(gconv.Uint64(v["id"]))
+		cateIds, err = GetCheckedCategoryIdByNewsId(gconv.Uint64(v.Id))
 		if err != nil {
 			return
 		}
@@ -147,7 +147,7 @@ func NewsListByPage(req *cms_news.ReqListSearchParams) (total, page int, list gd
 		if len(cateNameList) > 0 {
 			cateVal.Set(cateNameList)
 		}
-		v["cateList"] = cateVal
+		v.CateList = cateVal
 	}
 	return
 }

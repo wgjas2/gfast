@@ -11,6 +11,9 @@
     maxOpen     = "10" #连接池最大打开的连接数
     maxLifetime  = "30" #(单位秒)连接对象可重复使用的时间长度
     debug  = true
+    path   = "data/log/sql"
+    level  = "all"
+    stdout = true
 
 #web服务器配置
 [server]
@@ -55,8 +58,9 @@
 
 #后台相关配置
 [adminInfo]
-    notCheckAuthAdminIds = [1,31]  #无需验证后台权限的用户id
-    pageNum = 5  #后台列表分页长度
+    notCheckAuthAdminIds = [1,2,31]  #无需验证后台权限的用户id
+    pageNum = 10  #后台列表分页长度
+    dataDir =  "./data"  #数据目录
 
 # Gen
 [gen]
@@ -65,3 +69,10 @@
     packageName   = "gfast"
     autoRemovePre = true
     tablePrefix   = "t_,sys_"
+
+
+#模板配置
+[viewer]
+    paths       = ["./template"]
+    defaultFile = "index.html"
+    delimiters  =  ["${", "}"]

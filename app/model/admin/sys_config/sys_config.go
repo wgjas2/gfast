@@ -37,7 +37,7 @@ type SelectPageReq struct {
 }
 
 //保存参数
-func AddSave(req *AddReq, userId int) (id int64, err error) {
+func AddSave(req *AddReq, userId uint64) (id int64, err error) {
 	var entity Entity
 	entity.ConfigName = req.ConfigName
 	entity.ConfigKey = req.ConfigKey
@@ -62,7 +62,7 @@ func AddSave(req *AddReq, userId int) (id int64, err error) {
 }
 
 //修改保存
-func EditSave(req *EditReq, userId int) (int64, error) {
+func EditSave(req *EditReq, userId uint64) (int64, error) {
 	entity, err := GetParamsById(gconv.Int(req.ConfigId))
 	if err != nil {
 		return 0, err
@@ -74,7 +74,7 @@ func EditSave(req *EditReq, userId int) (int64, error) {
 	entity.Remark = req.Remark
 	entity.UpdateTime = gconv.Uint64(gtime.Timestamp())
 	entity.UpdateBy = gconv.Uint(userId)
-	result, err := entity.Update()
+	result, err := Model.Save(entity)
 	if err != nil {
 		g.Log().Error(err)
 		return 0, gerror.New("修改失败")
@@ -121,7 +121,7 @@ func SelectListByPage(req *SelectPageReq) (total, page int, list []*Entity, err 
 			model = model.Where("config_name like ?", "%"+req.ConfigName+"%")
 		}
 		if req.ConfigType != "" {
-			model = model.Where("status = ", gconv.Int(req.ConfigType))
+			model = model.Where("config_type = ", gconv.Int(req.ConfigType))
 		}
 		if req.ConfigKey != "" {
 			model = model.Where("config_key like ?", "%"+req.ConfigKey+"%")

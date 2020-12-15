@@ -40,7 +40,7 @@ type SelectPageReq struct {
 }
 
 //添加数据
-func AddSave(req *AddReq, userId int) (int64, error) {
+func AddSave(req *AddReq, userId uint64) (int64, error) {
 	var entity Entity
 	entity.Status = req.Status
 	entity.DictType = req.DictType
@@ -76,7 +76,7 @@ func GetDictById(id int) (dict *Entity, err error) {
 }
 
 //修改保存字典类型
-func EditSave(req *EditReq, userId int) (int64, error) {
+func EditSave(req *EditReq, userId uint64) (int64, error) {
 	entity, err := GetDictById(gconv.Int(req.DictId))
 	if err != nil || entity == nil {
 		return 0, err
@@ -87,7 +87,7 @@ func EditSave(req *EditReq, userId int) (int64, error) {
 	entity.Remark = req.Remark
 	entity.UpdateBy = gconv.Uint(userId)
 	entity.UpdateTime = gconv.Uint64(gtime.Timestamp())
-	res, err := entity.Update()
+	res, err := Model.Save(entity)
 	if err != nil {
 		g.Log().Error(err)
 		return 0, gerror.New("更新失败")
@@ -239,7 +239,7 @@ func DeleteDictByIds(ids []int) error {
 	//删除字典下的数据
 	for _, v := range discs {
 		sys_dict_data.Model.Delete("dict_type=?", v.DictType)
-		v.Delete()
+		Model.Delete("dict_id", v.DictId)
 	}
 	return nil
 }

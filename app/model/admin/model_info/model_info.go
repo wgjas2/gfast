@@ -21,7 +21,7 @@ type AddReq struct {
 	ModelTitle      string `p:"modelTitle"  v:"required#模型名称不能为空"`
 	ModelStatus     uint   `p:"modelStatus" v:"required#状态不能为空"`
 	ModelEngine     string `p:"modelEngine" `
-	CreateBy        int    //添加人
+	CreateBy        uint64 //添加人
 }
 
 // EditReq 用于存储修改请求参数
@@ -32,7 +32,7 @@ type EditReq struct {
 	ModelTitle      string `p:"modelTitle" `
 	ModelStatus     int    `p:"modelStatus" v:"required#状态不能为空"`
 	ModelEngine     string `p:"modelEngine" `
-	UpdateBy        int
+	UpdateBy        uint64
 }
 
 //模型字段属性修改请求参数
@@ -155,7 +155,7 @@ func EditSave(req *EditReq) error {
 	entity.ModelEngine = req.ModelEngine
 	entity.UpdateBy = gconv.Uint64(req.UpdateBy)
 	entity.UpdateTime = gconv.Uint64(gtime.Timestamp())
-	_, err = entity.Update()
+	_, err = Model.Save(entity)
 	if err != nil {
 		g.Log().Error(err)
 		return gerror.New("修改失败")
@@ -242,7 +242,7 @@ func SetStatus(req *StatusSetReq) error {
 			return gerror.New("获取模型信息失败")
 		}
 		entity.ModelStatus = gconv.Uint(req.ModelStatus)
-		_, err = entity.Update()
+		_, err = Model.Save(entity)
 		if err != nil {
 			g.Log().Error(err)
 			return gerror.New("设置状态失败")

@@ -27,6 +27,7 @@ func (c *Index) GetInfo(r *ghttp.Request) {
 	}
 	userInfo := gconv.Map(userEntity)
 	rolesList := make([]string, 0, 10)
+	var permissions []string
 	if userInfo != nil {
 		userId := userEntity.Id
 		delete(userInfo, "user_password")
@@ -38,12 +39,25 @@ func (c *Index) GetInfo(r *ghttp.Request) {
 			roles, err := user_service.GetAdminRole(userId, allRoles)
 			if err == nil {
 				name := make([]string, len(roles))
-				roleIds := make([]int, len(roles))
+				roleIds := make([]uint, len(roles))
 				for k, v := range roles {
 					name[k] = v.Name
 					roleIds[k] = v.Id
 				}
 				userInfo["roles"] = roles
+				isSuperAdmin := false
+				//获取无需验证权限的用户id
+				for _, v := range service.NotCheckAuthAdminIds {
+					if gconv.Uint64(v) == userId {
+						isSuperAdmin = true
+						break
+					}
+				}
+				if isSuperAdmin {
+					permissions = []string{"*/*/*"}
+				} else {
+					permissions, err = user_service.GetPermissions(roleIds)
+				}
 				rolesList = name
 			} else {
 				g.Log().Error(err)
@@ -56,7 +70,7 @@ func (c *Index) GetInfo(r *ghttp.Request) {
 	result := g.Map{
 		"user":        userInfo,
 		"roles":       rolesList,
-		"permissions": nil,
+		"permissions": permissions,
 	}
 
 	response.SusJson(true, r, "ok", result)
@@ -79,7 +93,7 @@ func (c *Index) GetRouters(r *ghttp.Request) {
 
 		//获取无需验证权限的用户id
 		for _, v := range service.NotCheckAuthAdminIds {
-			if v == userId {
+			if gconv.Uint64(v) == userId {
 				isSuperAdmin = true
 				break
 			}
@@ -91,7 +105,7 @@ func (c *Index) GetRouters(r *ghttp.Request) {
 			roles, err := user_service.GetAdminRole(userId, allRoles)
 			if err == nil {
 				name := make([]string, len(roles))
-				roleIds := make([]int, len(roles))
+				roleIds := make([]uint, len(roles))
 				for k, v := range roles {
 					name[k] = v.Name
 					roleIds[k] = v.Id

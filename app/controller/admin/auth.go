@@ -426,7 +426,7 @@ func (c *Auth) AddUser(r *ghttp.Request) {
 			response.FailJson(true, r, err.Error())
 		}
 		//设置用户所属角色信息
-		err = auth_service.AddUserRole(req.PostIds, InsertId)
+		err = auth_service.AddUserRole(req.RoleIds, InsertId)
 		if err != nil {
 			g.Log().Error(err)
 			response.FailJson(true, r, "设置用户权限失败")
@@ -490,7 +490,7 @@ func (c *Auth) EditUser(r *ghttp.Request) {
 		}
 		response.SusJson(true, r, "修改管理员成功")
 	}
-	id := r.GetRequestInt("id")
+	id := r.GetUint64("id")
 	//用户用户信息
 	userEntity, err := user.Model.Where("id=?", id).One()
 	if err != nil {
@@ -511,7 +511,7 @@ func (c *Auth) EditUser(r *ghttp.Request) {
 		response.FailJson(true, r, "获取用户角色数据失败")
 	}
 	if checkedRoleIds == nil {
-		checkedRoleIds = g.SliceInt{}
+		checkedRoleIds = []uint{}
 	}
 	//获取岗位信息
 	posts, err := post_service.GetUsedPost()
